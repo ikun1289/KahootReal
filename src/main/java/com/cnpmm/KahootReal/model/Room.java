@@ -14,14 +14,14 @@ public class Room {
 	private String name;
 	private String pinCode;
 	private Boolean isOpen;
-	private ObjectId creatorID;
+	private String creatorID;
 	private List<Guest> guests;
 	private List<Quiz> quizs;
 	public Room() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public Room(String name, String pinCode, Boolean isOpen, ObjectId creatorID, List<Guest> guests,
+	public Room(String name, String pinCode, Boolean isOpen, String creatorID, List<Guest> guests,
 			List<Quiz> quizs) {
 		super();
 		this.name = name;
@@ -55,10 +55,10 @@ public class Room {
 	public void setIsOpen(Boolean isOpen) {
 		this.isOpen = isOpen;
 	}
-	public ObjectId getCreatorID() {
+	public String getCreatorID() {
 		return creatorID;
 	}
-	public void setCreatorID(ObjectId creatorID) {
+	public void setCreatorID(String creatorID) {
 		this.creatorID = creatorID;
 	}
 	public List<Guest> getGuests() {

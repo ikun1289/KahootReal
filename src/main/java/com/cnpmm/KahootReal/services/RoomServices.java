@@ -3,7 +3,6 @@ package com.cnpmm.KahootReal.services;
 import java.util.List;
 import java.util.Optional;
 
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
@@ -28,13 +27,27 @@ public class RoomServices {
 		return roomRepository.findById(roomID);
 	}
 	
-	public Room getRoomByCreatorID(String creatorID)
+	public List<Room> getRoomByCreatorID(String creatorID)
 	{
-		return roomRepository.findBycreatorID(creatorID);
+		return roomRepository.findByCreatorID(creatorID);
+	}
+	
+	public Room getRoomByName(String name) {
+		return roomRepository.findByName(name);
 	}
 	
 	public void addNewRoom(Room room)
 	{
 		roomRepository.save(room);
+	}
+	
+	public Room getRoomByQuizID(String id)
+	{
+		return roomRepository.findByQuizs_Id(id);
+	}
+	
+	public Room getRoomByAnswerID(String id)
+	{
+		return roomRepository.findByQuizs_aList_Id(id);
 	}
 }
