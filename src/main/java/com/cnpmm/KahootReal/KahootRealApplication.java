@@ -14,6 +14,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -34,10 +36,8 @@ public class KahootRealApplication{
 
 	
 //	@Bean
-//	CommandLineRunner runner(RoomRepository roomRepository, MongoTemplate mongoTemplate) {
-//		return args -> {
-//			
-//		};
+//	PasswordEncoder passwordEncoder() {
+//		return new BCryptPasswordEncoder();
 //	}
 	
 	@Bean

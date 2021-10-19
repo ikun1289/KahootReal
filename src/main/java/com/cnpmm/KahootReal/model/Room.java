@@ -6,7 +6,11 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import lombok.Data;
+
+
 @Document(collection = "Room")
+@Data
 public class Room {
 
 	@Id
@@ -31,48 +35,7 @@ public class Room {
 		this.guests = guests;
 		this.quizs = quizs;
 	}
-	public ObjectId getId() {
-		return id;
-	}
-	public void setId(ObjectId id) {
-		this.id = id;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public String getPinCode() {
-		return pinCode;
-	}
-	public void setPinCode(String pinCode) {
-		this.pinCode = pinCode;
-	}
-	public Boolean getIsOpen() {
-		return isOpen;
-	}
-	public void setIsOpen(Boolean isOpen) {
-		this.isOpen = isOpen;
-	}
-	public String getCreatorID() {
-		return creatorID;
-	}
-	public void setCreatorID(String creatorID) {
-		this.creatorID = creatorID;
-	}
-	public List<Guest> getGuests() {
-		return guests;
-	}
-	public void setGuests(List<Guest> guests) {
-		this.guests = guests;
-	}
-	public List<Quiz> getQuizs() {
-		return quizs;
-	}
-	public void setQuizs(List<Quiz> quizs) {
-		this.quizs = quizs;
-	}
+	
 	
 	
 }

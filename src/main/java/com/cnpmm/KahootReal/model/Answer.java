@@ -3,8 +3,9 @@ package com.cnpmm.KahootReal.model;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
+import lombok.Data;
 
+@Data
 public class Answer {
 
 	@Id
@@ -20,24 +21,7 @@ public class Answer {
 		this.answer = answer;
 		this.isCorrect = isCorrect;
 	}
-	public ObjectId getId() {
-		return id;
-	}
-	public void setId(ObjectId id) {
-		this.id = id;
-	}
-	public String getAnswer() {
-		return answer;
-	}
-	public void setAnswer(String answer) {
-		this.answer = answer;
-	}
-	public Boolean getIsCorrect() {
-		return isCorrect;
-	}
-	public void setIsCorrect(Boolean isCorrect) {
-		this.isCorrect = isCorrect;
-	}
+	
 	
 	
 	
