@@ -34,6 +34,15 @@ public class User {
 		this.phone = phone;
 		this.gender = gender;
 	}
-	
+	public User(String userName, String passwd, String email) {
+		super();
+		this.id = new ObjectId();
+		this.userName = userName;
+		this.passwd = passwd;
+		this.name = name;
+		this.email = email;
+		this.phone = "";
+		this.gender = false;
+	}
 	
 }

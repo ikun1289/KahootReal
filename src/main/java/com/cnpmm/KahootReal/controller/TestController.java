@@ -100,7 +100,7 @@ public class TestController {
 	@PostMapping(value="/addRandomUser")
 	public String addRandomUser()
 	{
-		User user = new User(new ObjectId(),"123","1234","","","",true);
+		User user = new User(new ObjectId(),"quoc","1234","","","",true);
 		
 		UserService.addNewUser(user);
 		return "Added new user with ID: "+user.getId();

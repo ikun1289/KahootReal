@@ -45,6 +45,10 @@ public class UserService implements UserDetailsService {
 		return userRepository.findByUserName(username);
 	}
 
+	public Boolean checkUsername(String username) {
+		return  (userRepository.findByUserName(username) != null) ? true : false;
+	}
+
 	@Override
 	public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
 		// TODO Auto-generated method stub
