@@ -18,6 +18,7 @@ import com.cnpmm.KahootReal.model.Answer;
 import com.cnpmm.KahootReal.model.Quiz;
 import com.cnpmm.KahootReal.model.Room;
 import com.cnpmm.KahootReal.model.User;
+import com.cnpmm.KahootReal.services.QuizService;
 import com.cnpmm.KahootReal.services.RoomServices;
 import com.cnpmm.KahootReal.services.UserService;
 
@@ -28,6 +29,9 @@ public class TestController {
 	private RoomServices roomServices;
 	@Autowired
 	private UserService UserService;
+	@Autowired
+	private QuizService QuizService;
+	
 
 	@GetMapping(value="/api/getroom")
 	public ResponseEntity<Room> getRoomByID(@RequestParam("id") String roomId)
@@ -122,5 +126,21 @@ public class TestController {
 		if(room!=null)
 			return new ResponseEntity<Room>(room,HttpStatus.OK);
 		return new ResponseEntity<Room>(HttpStatus.NOT_FOUND);
+	}
+	
+	@PostMapping(value="/api/addNewQuizTest")
+	public ResponseEntity<Quiz> addNewQuiz(@RequestParam("roomId") String roomId)
+	{
+		List<Quiz> quizs= new ArrayList<>();
+		Quiz quiz = new Quiz("is shrimp gud? "+new Random().nextInt(100),null);
+		List<Answer> answers = new ArrayList<Answer>();
+		answers.add(new Answer("Yes",true));
+		answers.add(new Answer("No",false));
+		quiz.setAList(answers);
+		quizs.add(quiz);
+		quizs.add(quiz);
+		QuizService.addNewQuizsToRoom(roomId, quizs);
+		
+		return new ResponseEntity<Quiz>(HttpStatus.CREATED);
 	}
 }
