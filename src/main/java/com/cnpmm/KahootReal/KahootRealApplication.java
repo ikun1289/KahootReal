@@ -1,9 +1,7 @@
 package com.cnpmm.KahootReal;
 
-import java.io.Console;
 import java.util.Arrays;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -20,8 +18,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-import com.cnpmm.KahootReal.model.Quiz;
-import com.cnpmm.KahootReal.repositories.RoomRepository;
 
 @SpringBootApplication
 @EnableAutoConfiguration
@@ -39,6 +35,8 @@ public class KahootRealApplication{
 //	PasswordEncoder passwordEncoder() {
 //		return new BCryptPasswordEncoder();
 //	}
+	
+	
 	
 	@Bean
 	public CorsFilter corsFilter() {

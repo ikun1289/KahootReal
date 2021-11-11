@@ -22,10 +22,10 @@ public class QuizService {
 	@Autowired
 	MongoTemplate mongoTemplate;
 	
-	public List<Quiz> getQuizsByRoomID(String roomID) {
-		Optional<Room> room =  roomRepository.findById(roomID);
-		if(room.isPresent()) {
-			return room.get().getQuizs();
+	public List<Quiz> getQuizsByRoomPincode(String pin) {
+		Room room =  roomRepository.findByPinCode(pin);
+		if(room!=null && room.getIsOpen()) {
+			return room.getQuizs();
 		}
 		return null;
 	}

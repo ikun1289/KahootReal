@@ -18,4 +18,6 @@ public interface RoomRepository extends MongoRepository<Room,String>{
 	public Room findByQuizs_Id(String id);
 	
 	public Room findByQuizs_aList_Id(String id);
+	
+	public Room findByPinCode(String pin);
 }

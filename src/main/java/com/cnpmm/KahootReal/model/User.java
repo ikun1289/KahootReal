@@ -18,6 +18,7 @@ public class User {
 	private String email;
 	private String phone;
 	private Boolean gender;//true == male
+	private Boolean enable = false;
 	
 	public User() {
 		super();
@@ -39,7 +40,6 @@ public class User {
 		this.id = new ObjectId();
 		this.userName = userName;
 		this.passwd = passwd;
-		this.name = name;
 		this.email = email;
 		this.phone = "";
 		this.gender = false;

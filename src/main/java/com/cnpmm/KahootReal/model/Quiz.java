@@ -26,4 +26,11 @@ public class Quiz {
 		this.aList = aList;
 	}
 
+	public Quiz(String content, int time, List<Answer> aList) {
+		super();
+		this.content = content;
+		this.aList = aList;
+	}
+	
+
 }

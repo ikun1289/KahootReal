@@ -5,7 +5,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import javax.mail.MessagingException;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.cnpmm.KahootReal.model.User;
+import com.cnpmm.KahootReal.model.VerifyToken;
 import com.cnpmm.KahootReal.repositories.UserRepository;
 import com.cnpmm.KahootReal.security.CustomUserDetails;
 
@@ -27,7 +34,12 @@ public class UserService implements UserDetailsService {
 	UserRepository userRepository;
 	@Autowired
 	PasswordEncoder passwordEncoder;
-
+	@Autowired
+	VerifyTokenService tokenService;
+	@Autowired
+	private MongoTemplate mongoTemplate;
+	@Autowired
+	EmailService emailService;
 	public List<User> getAllUser() {
 		return userRepository.findAll();
 	}
@@ -73,6 +85,31 @@ public class UserService implements UserDetailsService {
 			System.out.println("User found: " + user.get().getUserName() +" "+user.get().getPasswd());
 		}
 		return new CustomUserDetails(user.get());
+	}
+	
+	public void register(User user) // String siteURL
+	{
+		user.setPasswd(passwordEncoder.encode(user.getPasswd()));
+		user.setEnable(false);
+		sendVerificationEmail(user);
+		userRepository.save(user);
+	}
+
+	private void sendVerificationEmail(User user) {
+		VerifyToken token = tokenService.createNewToken(user.getId().toHexString());
+		tokenService.saveNewVerifyToken(token);
+		try {
+			emailService.sendMail(user, token);
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public User enableUser(String id) {
+		Query query = new Query(Criteria.where("id").is(id));
+		Update update = new Update().set("enable", true);
+		return this.mongoTemplate.findAndModify(query, update, User.class);
 	}
 }
 

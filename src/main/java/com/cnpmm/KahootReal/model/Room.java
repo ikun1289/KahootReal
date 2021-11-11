@@ -19,22 +19,25 @@ public class Room {
 	private String pinCode;
 	private Boolean isOpen;
 	private String creatorID;
+	private int time = 0;
 	private List<Guest> guests;
 	private List<Quiz> quizs;
 	public Room() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public Room(String name, String pinCode, Boolean isOpen, String creatorID, List<Guest> guests,
-			List<Quiz> quizs) {
+	public Room(String name, String pinCode, Boolean isOpen, String creatorID, int time,
+			List<Guest> guests, List<Quiz> quizs) {
 		super();
 		this.name = name;
 		this.pinCode = pinCode;
 		this.isOpen = isOpen;
 		this.creatorID = creatorID;
+		this.time = time;
 		this.guests = guests;
 		this.quizs = quizs;
 	}
+	
 	
 	
 	
