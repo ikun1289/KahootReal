@@ -1,5 +1,6 @@
 package com.cnpmm.KahootReal.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -10,6 +11,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import com.cnpmm.KahootReal.RandomString;
+import com.cnpmm.KahootReal.model.Guest;
 import com.cnpmm.KahootReal.model.Room;
 import com.cnpmm.KahootReal.repositories.RoomRepository;
 
@@ -59,15 +62,42 @@ public class RoomServices {
 		return roomRepository.findByPinCode(pin);
 	}
 	
-	public void openRoomWithPin(String pin) {
-		Query query = new Query(Criteria.where("pinCode").is(pin));
-		Update update = new Update().set("isOpen", true);
+	public String openRoomWithId(String id) {
+		String generatedPin = new RandomString(9).nextString();
+		Query query = new Query(Criteria.where("id").is(id));
+		Update update = new Update().set("isOpen", true).set("pinCode", generatedPin).set("guests", new ArrayList<>());
+		this.mongoTemplate.findAndModify(query, update, Room.class);
+		return generatedPin;
+	}
+	
+	public void closeRoomWithId(String id) {
+		Query query = new Query(Criteria.where("id").is(id));
+		Update update = new Update().set("isOpen", false);
 		this.mongoTemplate.findAndModify(query, update, Room.class);
 	}
 	
-	public void closeRoomWithPin(String pin) {
+	public void deleteRoomWithId(String roomid)
+	{
+		roomRepository.deleteById(roomid);
+	}
+
+	public List<Guest> addNewGuest(String pin,String name) {
+		// TODO Auto-generated method stub
+		Guest guest = new Guest();
+		guest.setName(name);
+		guest.setScore(0);
 		Query query = new Query(Criteria.where("pinCode").is(pin));
-		Update update = new Update().set("isOpen", false);
-		this.mongoTemplate.findAndModify(query, update, Room.class);
+		Update update = new Update().push("guests", guest);
+		this.mongoTemplate.updateFirst(query, update, Room.class);
+		return this.mongoTemplate.findOne(query, Room.class).getGuests();
+	}
+
+	public boolean checkGuestname(String pin,String string) {
+		// TODO Auto-generated method stub
+		Query query = new Query(Criteria.where("pinCode").is(pin).andOperator(Criteria.where("guests.name").is(string)));
+		List<Room> rooms = this.mongoTemplate.find(query, Room.class);
+		if(rooms.isEmpty())
+			return false;
+		return true;
 	}
 }

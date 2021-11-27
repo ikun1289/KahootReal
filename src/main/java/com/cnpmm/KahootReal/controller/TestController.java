@@ -79,7 +79,7 @@ public class TestController {
 	@PostMapping(value="/api/add-random-room")
 	public String addNewRandomRoom()
 	{
-		Room room = new Room("room test" +new Random().nextInt(100), "000000", false, "616aa5319352ae0a58224c15",10, null, null);
+		Room room = new Room("room test" +new Random().nextInt(100), "000000", "616aa5319352ae0a58224c15",10, null, null);
 		roomServices.addNewRoom(room);
 		return "Added new room with ID: "+room.getId();
 	}
@@ -87,7 +87,7 @@ public class TestController {
 	@PostMapping(value="/api/add-random-room-with-quiz")
 	public String addNewRandomRoomWithQuiz()
 	{
-		Room room = new Room("room test" +new Random().nextInt(100), new RandomString(9).nextString(), false,"616aa5319352ae0a58224c15",10, null, null);
+		Room room = new Room("room test" +new Random().nextInt(100), new RandomString(9).nextString(),"616aa5319352ae0a58224c15",10, null, null);
 		List<Quiz> quizs= new ArrayList<>();
 		Quiz quiz = new Quiz("is shrimp gud?",null);
 		List<Answer> answers = new ArrayList<Answer>();

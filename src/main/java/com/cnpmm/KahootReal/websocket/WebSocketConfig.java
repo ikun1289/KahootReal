@@ -14,7 +14,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/doquiz/room");
+        config.enableSimpleBroker("/doquiz");
         config.setApplicationDestinationPrefixes("/app");
     }
 

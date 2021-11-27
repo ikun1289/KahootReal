@@ -1,8 +1,12 @@
 package com.cnpmm.KahootReal.controller;
 
 import com.cnpmm.KahootReal.model.User;
+import com.cnpmm.KahootReal.model.VerifyToken;
 import com.cnpmm.KahootReal.payload.*;
+import com.cnpmm.KahootReal.services.EmailService;
 import com.cnpmm.KahootReal.services.UserService;
+import com.cnpmm.KahootReal.services.VerifyTokenService;
+
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cnpmm.KahootReal.JWT.JwtTokenProvider;
@@ -30,7 +35,13 @@ public class LodaRestController {
 	private UserService UserService;
 
 	@Autowired
+	private VerifyTokenService tokenService;
+
+	@Autowired
 	private JwtTokenProvider tokenProvider;
+
+	@Autowired
+	private EmailService EmailService;
 
 	@PostMapping("/api/login")
 	public LoginResponse authenticateUser(@RequestBody LoginRequest loginRequest) {
@@ -58,18 +69,73 @@ public class LodaRestController {
 
 
 	@PostMapping("/api/register")
-	public ResponseEntity<GeneralResponse> registerUser(@RequestBody RegisterRequest registerRequrest) {
-		if(UserService.checkUsername(registerRequrest.getUsername())) {
-			ResponseEntity.status(HttpStatus.CONFLICT);
-			return new ResponseEntity<>( new GeneralResponse("Đã tồn tại username"), HttpStatus.CONFLICT);
+	public ResponseEntity<GeneralResponse> registerUser(@RequestBody User registerRequrest) {
+		System.out.println(registerRequrest.toString());
+		if(registerRequrest.getUserName()== "" || registerRequrest.getEmail()=="" || registerRequrest.getPasswd()=="")
+		{
+			return new ResponseEntity<>(new GeneralResponse("Những trường quan trọng không được để trống"), HttpStatus.BAD_REQUEST);
+		}
+		User user1 = UserService.findByEmail(registerRequrest.getEmail());
+		if (user1 != null) {
+			if (user1.getUserName().equals(registerRequrest.getUserName())) {
+				if (user1.getEnable()) {
+					ResponseEntity.status(HttpStatus.CONFLICT);
+					System.out.println("Tài khoản này đã được tạo rồi");
+					return new ResponseEntity<>(new GeneralResponse("Đã tồn tại tài khoản này"), HttpStatus.CONFLICT);
+				} else {
+					ResponseEntity.status(HttpStatus.ALREADY_REPORTED);
+					System.out.println("Tài khoản này đã được tạo rồi mà chưa kích hoạt");
+					return new ResponseEntity<>(
+							new GeneralResponse("Tài khoản này đã tạo mà chưa kích hoạt, bạn có muốn tạo lại?"),
+							HttpStatus.ALREADY_REPORTED);
+				}
+			} else {
+				ResponseEntity.status(HttpStatus.CONFLICT);
+				System.out.println("email đã tồn tại");
+				return new ResponseEntity<>(new GeneralResponse("Email đã được sử dụng"), HttpStatus.CONFLICT);
+			}
 		}
 
-		User user = new User(registerRequrest.getUsername(), registerRequrest.getPassword(),registerRequrest.getEmail());
+		if (UserService.checkUsername(registerRequrest.getUserName())) {
+			ResponseEntity.status(HttpStatus.CONFLICT);
+			System.out.println("user đã tồn tại");
+			return new ResponseEntity<>(new GeneralResponse("Đã tồn tại username"), HttpStatus.CONFLICT);
+		}
 
-		UserService.addNewUser(user);
-		GeneralResponse res = new GeneralResponse("Đăng ký thành công");
+		User user = UserService.register(registerRequrest);
+		VerifyToken token = UserService.createToken(user);
+
 		ResponseEntity.status(HttpStatus.OK);
-		return new ResponseEntity<>( new GeneralResponse("Đăng ký thành công"), HttpStatus.OK);
+		System.out.println("đk thành công");
+		Thread thread = new Thread() {
+			public void run() {
+				try {
+					EmailService.sendMail(user, token);
+				} catch (Exception e) {
+					// TODO: handle exception
+					System.out.println(e.getMessage());
+				}
+
+			}
+		};
+		thread.start();
+		return new ResponseEntity<>(new GeneralResponse("Đăng ký thành công! \nHãy kiểm tra mail của bạn"),
+				HttpStatus.OK);
+
+	}
+
+	@GetMapping("/verify")
+	public String verifyAccount(@RequestParam("token") String token) {
+
+		VerifyToken vToken = tokenService.getVTokenByToken(token);
+		System.out.println("verifying");
+		if (vToken != null) {
+			UserService.enableUser(vToken.getUserId());
+			tokenService.removeToken(token);
+			return "Account Verified!";
+		} else {
+			return "Verify failed";
+		}
 	}
 
 }

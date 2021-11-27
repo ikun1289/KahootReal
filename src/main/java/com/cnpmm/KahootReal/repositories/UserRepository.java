@@ -7,5 +7,5 @@ import com.cnpmm.KahootReal.model.User;
 public interface UserRepository extends MongoRepository<User,String>{
 
 	public User findByUserName(String name);
-	
+	public User findByEmail(String email);
 }
