@@ -74,10 +74,11 @@ public class DoingQuizController {
 		{
 			i++;
 		}
+		name = name +(i==0?"":i);
 		if(roomService.getRoomByPincode(pin).getIsOpen())
 		{
 			try {
-				List<Guest> guests = roomService.addNewGuest(pin,name+(i==0?"":i));
+				List<Guest> guests = roomService.addNewGuest(pin,name);
 				Thread.sleep(1000);
 				this.template.convertAndSend("/doquiz/score/"+pin,guests);
 			} catch (InterruptedException e) {
@@ -86,7 +87,7 @@ public class DoingQuizController {
 			}
 			
 			
-			return new ResponseEntity<String>("Get in room with pin: "+pin,HttpStatus.OK);
+			return new ResponseEntity<String>(name,HttpStatus.OK);
 		}
 		
 		return new ResponseEntity<String>("room with pin: "+pin+" is not opened",HttpStatus.BAD_REQUEST);
