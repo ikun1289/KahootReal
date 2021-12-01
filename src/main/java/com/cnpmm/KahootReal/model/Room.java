@@ -19,6 +19,7 @@ public class Room {
 	private String name;
 	private String pinCode;
 	private Boolean isOpen = false;
+	private Boolean isStart = false;
 	private String creatorID;
 	private int time = 0;
 	private List<Guest> guests = new ArrayList<Guest>();

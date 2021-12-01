@@ -76,6 +76,17 @@ public class RoomServices {
 		this.mongoTemplate.findAndModify(query, update, Room.class);
 	}
 	
+	public Room startDoQuizInRoomWithId(String id) {
+		Query query = new Query(Criteria.where("id").is(id));
+		Update update = new Update().set("isStart", true);
+		return this.mongoTemplate.findAndModify(query, update, Room.class);
+	}
+	public Room stopDoQuizInRoomWithId(String id) {
+		Query query = new Query(Criteria.where("id").is(id));
+		Update update = new Update().set("isStart", false);
+		return this.mongoTemplate.findAndModify(query, update, Room.class);
+	}
+	
 	public void deleteRoomWithId(String roomid)
 	{
 		roomRepository.deleteById(roomid);
@@ -99,5 +110,22 @@ public class RoomServices {
 		if(rooms.isEmpty())
 			return false;
 		return true;
+	}
+	
+	public Guest getGuest(String pin, String name) {
+		Query query = new Query(Criteria.where("pinCode").is(pin).andOperator(Criteria.where("guests.name").is(name)));
+		Room rooms = this.mongoTemplate.findOne(query, Room.class);
+		if(rooms == null)
+			return null;
+		Guest guest = rooms.getGuests().stream().filter(x -> x.getName().equals(name)).findFirst().orElse(null);
+		return guest;
+	}
+
+	public void updateScore(String id, String name, int score) {
+		Query query = new Query(Criteria.where("id").is(id));
+		Update update = new Update().set("guests.$[element].score", score).filterArray("element.name",name);
+		this.mongoTemplate.updateFirst(query, update, Room.class);
+//		return this.mongoTemplate.findOne(query, Room.class).getGuests();
+		
 	}
 }
