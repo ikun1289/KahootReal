@@ -70,10 +70,11 @@ public class RoomServices {
 		return generatedPin;
 	}
 	
-	public void closeRoomWithId(String id) {
+	public String closeRoomWithId(String id) {
 		Query query = new Query(Criteria.where("id").is(id));
 		Update update = new Update().set("isOpen", false);
-		this.mongoTemplate.findAndModify(query, update, Room.class);
+		return this.mongoTemplate.findAndModify(query, update, Room.class).getPinCode();
+		
 	}
 	
 	public Room startDoQuizInRoomWithId(String id) {

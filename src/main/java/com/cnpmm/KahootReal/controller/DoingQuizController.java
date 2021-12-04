@@ -54,7 +54,7 @@ public class DoingQuizController {
 		System.out.println(room.toString());
 		Map<String, HttpStatus> response = new HashMap<String, HttpStatus>();
 		response.put("status", HttpStatus.I_AM_A_TEAPOT);
-		
+
 		currentQuizService.setCurrentQuiz(roomId);
 		for (Quiz quiz : room.getQuizs()) {
 			try {
@@ -83,14 +83,29 @@ public class DoingQuizController {
 		}
 	}
 
+	@PostMapping("/closeroom")
+	public ResponseEntity<String> closeRoom(@RequestParam("id") String id) {
+		String i = roomService.closeRoomWithId(id);
+		this.template.convertAndSend("/doquiz/message/" + i, new DoQuizMessage("Kết thúc!", HttpStatus.I_AM_A_TEAPOT));
+		return new ResponseEntity<String>("Đóng phòng thành công", HttpStatus.OK);
+	}
+
 	@PostMapping("/openroom")
 	public ResponseEntity<String> openRoom(@RequestParam("id") String id) {
 		String pin = roomService.openRoomWithId(id);
 		return new ResponseEntity<String>(pin, HttpStatus.OK);
 	}
 
+	@PostMapping("/deleteroom")
+	public ResponseEntity<String> deleteRoom(@RequestParam("id") String id) {
+		String i = roomService.closeRoomWithId(id);
+		this.template.convertAndSend("/doquiz/message/" + i, new DoQuizMessage("Kết thúc!", HttpStatus.I_AM_A_TEAPOT));
+		roomService.deleteRoomWithId(id);
+		return new ResponseEntity<String>("Xóa room thành công", HttpStatus.OK);
+	}
+
 	@GetMapping("/getin")
-	public ResponseEntity<String> getInRoom(@RequestParam("pin") String pin, @RequestBody Map<String, String> body) {
+	public ResponseEntity<?> getInRoom(@RequestParam("pin") String pin, @RequestBody Map<String, String> body) {
 		String name = body.get("name");
 		System.out.println(name);
 		int i = 0;
@@ -98,17 +113,21 @@ public class DoingQuizController {
 			i++;
 		}
 		name = name + (i == 0 ? "" : i);
-		if (roomService.getRoomByPincode(pin).getIsOpen()) {
+		Room room = roomService.getRoomByPincode(pin);
+		if (room.getIsOpen()) {
 			try {
 				List<Guest> guests = roomService.addNewGuest(pin, name);
 				Thread.sleep(1000);
 				this.template.convertAndSend("/doquiz/score/" + pin, guests);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
+			Map<String, String> response = new HashMap<>();
+			response.put("name", name);
+			response.put("time", room.getTime()+"");
 
-			return new ResponseEntity<String>(name, HttpStatus.OK);
+			return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
 		}
 
 		return new ResponseEntity<String>("room with pin: " + pin + " is not opened", HttpStatus.BAD_REQUEST);
@@ -135,17 +154,17 @@ public class DoingQuizController {
 						.orElse(null);
 				if (a != null && a.getIsCorrect()) {
 					int score = guest.getScore();
-					System.out.println("score1:"+score);
+					System.out.println("score1:" + score);
 					Date date = new Date(currentQuiz.getStartTime());
 					Date submitDate = new Date();
 					long diff = submitDate.getTime() - date.getTime();
-					long x = (room.getTime()<=0?8:room.getTime()) * 1000;
+					long x = (room.getTime() <= 0 ? 8 : room.getTime()) * 1000;
 					score += (x - diff) / 100;
-					System.out.println("start quiz time:"+date);
-					System.out.println("Submit time:"+submitDate);
-					System.out.println("diff"+diff);
-					System.out.println("time:"+x);
-					System.out.println("score2:"+score);
+					System.out.println("start quiz time:" + date);
+					System.out.println("Submit time:" + submitDate);
+					System.out.println("diff" + diff);
+					System.out.println("time:" + x);
+					System.out.println("score2:" + score);
 					roomService.updateScore(room.getId().toHexString(), body.get("name"), score);
 				}
 			}
