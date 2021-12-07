@@ -122,10 +122,10 @@ public class RoomServices {
 		return guest;
 	}
 
-	public void updateScore(String id, String name, int score) {
+	public Room updateScore(String id, String name, int score) {
 		Query query = new Query(Criteria.where("id").is(id));
 		Update update = new Update().set("guests.$[element].score", score).filterArray("element.name",name);
-		this.mongoTemplate.updateFirst(query, update, Room.class);
+		return this.mongoTemplate.findAndModify(query, update, Room.class);
 //		return this.mongoTemplate.findOne(query, Room.class).getGuests();
 		
 	}

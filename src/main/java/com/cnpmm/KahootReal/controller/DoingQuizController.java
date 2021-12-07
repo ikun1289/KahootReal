@@ -1,10 +1,13 @@
 package com.cnpmm.KahootReal.controller;
 
-import com.cnpmm.KahootReal.model.*;
-import com.cnpmm.KahootReal.payload.DoQuizMessage;
-import com.cnpmm.KahootReal.services.CurrentQuizService;
-import com.cnpmm.KahootReal.services.QuizService;
-import com.cnpmm.KahootReal.services.RoomServices;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.security.auth.x500.X500Principal;
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,15 +15,22 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.cnpmm.KahootReal.model.Answer;
+import com.cnpmm.KahootReal.model.CurrentQuiz;
+import com.cnpmm.KahootReal.model.Guest;
+import com.cnpmm.KahootReal.model.Quiz;
+import com.cnpmm.KahootReal.model.Room;
+import com.cnpmm.KahootReal.payload.DoQuizMessage;
+import com.cnpmm.KahootReal.services.CurrentQuizService;
+import com.cnpmm.KahootReal.services.QuizService;
+import com.cnpmm.KahootReal.services.RoomServices;
 
 @RestController
 public class DoingQuizController {
@@ -53,6 +63,7 @@ public class DoingQuizController {
 				Thread.sleep(3000);
 				currentQuizService.updateCurrentQuiz(roomId, quiz.getId().toHexString());
 				System.out.println(quiz.toString());
+				quiz = removeIsCorrectInAnswer(quiz);
 				this.template.convertAndSend("/doquiz/room/" + i, quiz);
 				Thread.sleep(room.getTime() <= 0 ? 10000 : room.getTime() * 1000);
 			} catch (InterruptedException e) {
@@ -71,6 +82,12 @@ public class DoingQuizController {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private Quiz removeIsCorrectInAnswer(Quiz quiz) {
+		Quiz kQuiz = quiz;
+		kQuiz.getAList().forEach(x->x.setIsCorrect(null));
+		return kQuiz;
 	}
 
 	@PostMapping("/closeroom")
@@ -94,18 +111,18 @@ public class DoingQuizController {
 		return new ResponseEntity<String>("Xóa room thành công", HttpStatus.OK);
 	}
 
-	@PostMapping("/getin")
+	@GetMapping("/getin")
 	public ResponseEntity<?> getInRoom(@RequestParam("pin") String pin, @RequestBody Map<String, String> body) {
 		String name = body.get("name");
-		System.out.println(name);
 		int i = 0;
-		while (roomService.checkGuestname(pin, name + (i == 0 ? "" : i))) {
-			i++;
-		}
-		name = name + (i == 0 ? "" : i);
+		
 		Room room = roomService.getRoomByPincode(pin);
 		if (room.getIsOpen()) {
 			try {
+				while(checkName(room.getGuests(),name + (i == 0 ? "" : i))) {
+					i++;
+				}
+				name = name + (i == 0 ? "" : i);
 				List<Guest> guests = roomService.addNewGuest(pin, name);
 				Thread.sleep(1000);
 				this.template.convertAndSend("/doquiz/score/" + pin, guests);
@@ -121,6 +138,13 @@ public class DoingQuizController {
 		}
 
 		return new ResponseEntity<String>("room with pin: " + pin + " is not opened", HttpStatus.BAD_REQUEST);
+	}
+
+	private boolean checkName(List<Guest> guests, String name) {
+		Guest g = guests.stream().filter(x->x.getName().equals(name)).findFirst().orElse(null);
+		if(g==null)
+			return false;
+		return true;
 	}
 
 	@PostMapping("/submitAnswer")
@@ -155,7 +179,11 @@ public class DoingQuizController {
 					System.out.println("diff" + diff);
 					System.out.println("time:" + x);
 					System.out.println("score2:" + score);
-					roomService.updateScore(room.getId().toHexString(), body.get("name"), score);
+					Room rr = roomService.updateScore(room.getId().toHexString(), body.get("name"), score);
+					if(rr != null)
+					{
+						this.template.convertAndSend("/doquiz/score/" + pin, rr.getGuests());
+					}
 				}
 			}
 			return new ResponseEntity<String>("Trả lời thành công", HttpStatus.OK);
