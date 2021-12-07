@@ -1,22 +1,18 @@
 package com.cnpmm.KahootReal;
 
-import java.util.Arrays;
-
-import org.springframework.boot.CommandLineRunner;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import org.bson.types.ObjectId;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
-import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+
+import java.util.Arrays;
 
 
 @SpringBootApplication
@@ -52,6 +48,12 @@ public class KahootRealApplication{
 		UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
 		urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", configuration);
 		return new CorsFilter(urlBasedCorsConfigurationSource);
+	}
+
+	@Bean
+	public Jackson2ObjectMapperBuilderCustomizer customizer()
+	{
+		return builder -> builder.serializerByType(ObjectId.class,new ToStringSerializer());
 	}
 
 }
