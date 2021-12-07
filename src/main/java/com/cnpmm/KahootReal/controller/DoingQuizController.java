@@ -174,7 +174,7 @@ public class DoingQuizController {
 					long diff = submitDate.getTime() - date.getTime();
 					long x = (room.getTime() <= 0 ? 8 : room.getTime()) * 1000;
 					score += (x - diff) / 100;
-					System.out.println("start quiz time:" + date);
+					System.out.println("Start quiz time:" + date);
 					System.out.println("Submit time:" + submitDate);
 					System.out.println("diff" + diff);
 					System.out.println("time:" + x);
