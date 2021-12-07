@@ -1,9 +1,9 @@
 package com.cnpmm.KahootReal.services;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
+import com.cnpmm.KahootReal.RandomString;
+import com.cnpmm.KahootReal.model.Guest;
+import com.cnpmm.KahootReal.model.Room;
+import com.cnpmm.KahootReal.repositories.RoomRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -11,10 +11,9 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
-import com.cnpmm.KahootReal.RandomString;
-import com.cnpmm.KahootReal.model.Guest;
-import com.cnpmm.KahootReal.model.Room;
-import com.cnpmm.KahootReal.repositories.RoomRepository;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -125,8 +124,8 @@ public class RoomServices {
 	public Room updateScore(String id, String name, int score) {
 		Query query = new Query(Criteria.where("id").is(id));
 		Update update = new Update().set("guests.$[element].score", score).filterArray("element.name",name);
-		return this.mongoTemplate.findAndModify(query, update, Room.class);
-//		return this.mongoTemplate.findOne(query, Room.class).getGuests();
+		this.mongoTemplate.updateFirst(query, update, Room.class);
+		return this.mongoTemplate.findOne(query, Room.class);
 		
 	}
 }

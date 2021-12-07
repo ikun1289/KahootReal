@@ -1,13 +1,10 @@
 package com.cnpmm.KahootReal.controller;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.security.auth.x500.X500Principal;
-import javax.servlet.http.HttpServletRequest;
-
+import com.cnpmm.KahootReal.model.*;
+import com.cnpmm.KahootReal.payload.DoQuizMessage;
+import com.cnpmm.KahootReal.services.CurrentQuizService;
+import com.cnpmm.KahootReal.services.QuizService;
+import com.cnpmm.KahootReal.services.RoomServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,22 +12,12 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.cnpmm.KahootReal.model.Answer;
-import com.cnpmm.KahootReal.model.CurrentQuiz;
-import com.cnpmm.KahootReal.model.Guest;
-import com.cnpmm.KahootReal.model.Quiz;
-import com.cnpmm.KahootReal.model.Room;
-import com.cnpmm.KahootReal.payload.DoQuizMessage;
-import com.cnpmm.KahootReal.services.CurrentQuizService;
-import com.cnpmm.KahootReal.services.QuizService;
-import com.cnpmm.KahootReal.services.RoomServices;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 public class DoingQuizController {
@@ -111,7 +98,7 @@ public class DoingQuizController {
 		return new ResponseEntity<String>("Xóa room thành công", HttpStatus.OK);
 	}
 
-	@GetMapping("/getin")
+	@PostMapping("/getin")
 	public ResponseEntity<?> getInRoom(@RequestParam("pin") String pin, @RequestBody Map<String, String> body) {
 		String name = body.get("name");
 		int i = 0;
@@ -124,7 +111,7 @@ public class DoingQuizController {
 				}
 				name = name + (i == 0 ? "" : i);
 				List<Guest> guests = roomService.addNewGuest(pin, name);
-				Thread.sleep(1000);
+				Thread.sleep(0);
 				this.template.convertAndSend("/doquiz/score/" + pin, guests);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
