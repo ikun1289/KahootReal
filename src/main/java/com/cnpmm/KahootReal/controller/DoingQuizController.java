@@ -167,12 +167,15 @@ public class DoingQuizController {
 					System.out.println("time:" + x);
 					System.out.println("score2:" + score);
 					Room rr = roomService.updateScore(room.getId().toHexString(), body.get("name"), score);
-					if(rr != null)
-					{
-						this.template.convertAndSend("/doquiz/score/" + pin, rr.getGuests());
-					}
+//					if(rr != null)
+//					{
+//						this.template.convertAndSend("/doquiz/score/" + pin, rr.getGuests());
+//					}
 				}
 			}
+			Room rom = roomService.getRoomByPincode(pin);
+			this.template.convertAndSend("/doquiz/score/" + pin, rom.getGuests());
+
 			return new ResponseEntity<String>("Trả lời thành công", HttpStatus.OK);
 		}
 		return new ResponseEntity<String>("Lỗi đủ thứ lười bắt từng cái", HttpStatus.BAD_REQUEST);
